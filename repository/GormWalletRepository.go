@@ -4,7 +4,9 @@ import (
 	"errors"
 
 	"github.com/Egor332/TokenTransferApi/models"
+	"github.com/Egor332/TokenTransferApi/pkg/common"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type GormWalletRepository struct {
@@ -16,17 +18,17 @@ func NewGormWalletRepository() *GormWalletRepository {
 	return &GormWalletRepository{}
 }
 
-func (r *GormWalletRepository) AddToBalance(db *gorm.DB, address string, additionAmount int64) error {
+func (r *GormWalletRepository) AddToBalance(db *gorm.DB, address string, newBalance int64) error {
 	updateResult := db.Model(&models.Wallet{}).
 		Where("wallet_address = ?", address).
-		Update("balance", gorm.Expr("balance + ?", additionAmount))
+		Update("balance", newBalance)
 
 	if updateResult.Error != nil {
 		return updateResult.Error
 	}
 
 	if updateResult.RowsAffected == 0 {
-		return errors.New("wallet update failed: no rows affected")
+		return common.ErrWalletNotFound
 	}
 
 	return nil
@@ -39,11 +41,26 @@ func (r *GormWalletRepository) AddWallet(db *gorm.DB, wallet *models.Wallet) err
 
 func (r *GormWalletRepository) GetWalletByAddress(db *gorm.DB, address string) (*models.Wallet, error) {
 	var wallet models.Wallet
-	result := db.First(&wallet, "wallet_address=?", address)
+	err := db.Where("wallet_address = ?", address).First(&wallet).Error
 
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrWalletNotFound
+		}
+		return nil, err
 	}
 
-	return &wallet, result.Error
+	return &wallet, nil
+}
+
+func (r *GormWalletRepository) GetWalletByAddressWithLock(db *gorm.DB, address string) (*models.Wallet, error) {
+	var wallet models.Wallet
+	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).Where("wallet_address = ?", address).First(&wallet).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrWalletNotFound
+		}
+		return nil, err
+	}
+	return &wallet, nil
 }
