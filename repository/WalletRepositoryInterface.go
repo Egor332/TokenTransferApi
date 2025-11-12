@@ -10,7 +10,7 @@ type WalletRepositoryInterface interface {
 
 	AddWallet(db *gorm.DB, wallet *models.Wallet) error
 
-	AddToBalance(db *gorm.DB, address string, additionAmount int64) error
+	SetNewBalance(db *gorm.DB, address string, newBalance int64) error
 
 	GetWalletByAddressWithLock(db *gorm.DB, address string) (*models.Wallet, error)
 }

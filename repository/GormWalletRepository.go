@@ -18,7 +18,7 @@ func NewGormWalletRepository() *GormWalletRepository {
 	return &GormWalletRepository{}
 }
 
-func (r *GormWalletRepository) AddToBalance(db *gorm.DB, address string, newBalance int64) error {
+func (r *GormWalletRepository) SetNewBalance(db *gorm.DB, address string, newBalance int64) error {
 	updateResult := db.Model(&models.Wallet{}).
 		Where("wallet_address = ?", address).
 		Update("balance", newBalance)
