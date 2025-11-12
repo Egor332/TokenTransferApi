@@ -8,17 +8,16 @@ import (
 )
 
 type GormWalletRepository struct {
-	DB *gorm.DB
 }
 
 var _ WalletRepositoryInterface = (*GormWalletRepository)(nil)
 
-func NewGormWalletRepository(db *gorm.DB) *GormWalletRepository {
-	return &GormWalletRepository{DB: db}
+func NewGormWalletRepository() *GormWalletRepository {
+	return &GormWalletRepository{}
 }
 
-func (r *GormWalletRepository) AddToBalance(address string, additionAmount int64) error {
-	updateResult := r.DB.Model(&models.Wallet{}).
+func (r *GormWalletRepository) AddToBalance(db *gorm.DB, address string, additionAmount int64) error {
+	updateResult := db.Model(&models.Wallet{}).
 		Where("wallet_address = ?", address).
 		Update("balance", gorm.Expr("balance + ?", additionAmount))
 
@@ -33,14 +32,14 @@ func (r *GormWalletRepository) AddToBalance(address string, additionAmount int64
 	return nil
 }
 
-func (r *GormWalletRepository) AddWallet(wallet *models.Wallet) error {
-	result := r.DB.Create(wallet)
+func (r *GormWalletRepository) AddWallet(db *gorm.DB, wallet *models.Wallet) error {
+	result := db.Create(wallet)
 	return result.Error
 }
 
-func (r *GormWalletRepository) GetWalletByAddress(address string) (*models.Wallet, error) {
+func (r *GormWalletRepository) GetWalletByAddress(db *gorm.DB, address string) (*models.Wallet, error) {
 	var wallet models.Wallet
-	result := r.DB.First(&wallet, "wallet_address=?", address)
+	result := db.First(&wallet, "wallet_address=?", address)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, nil
