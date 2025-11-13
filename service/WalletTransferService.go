@@ -18,14 +18,16 @@ func NewWalletTransferService(repo repository.WalletRepositoryInterface, db *gor
 	}
 }
 
-func (s *WalletTransferService) Transfer(fromAddress string, toAddress string, amount int64) error {
+func (s *WalletTransferService) Transfer(fromAddress string, toAddress string, amount int64) (int64, error) {
 	if amount <= 0 {
-		return common.ErrInvalidAmount
+		return 0, common.ErrInvalidAmount
 	}
 
 	if fromAddress == toAddress {
-		return common.ErrSameWallet
+		return 0, common.ErrSameWallet
 	}
+
+	var newFromBalance int64
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		fromWallet, err := s.repo.GetWalletByAddressWithLock(tx, fromAddress)
@@ -41,7 +43,7 @@ func (s *WalletTransferService) Transfer(fromAddress string, toAddress string, a
 			return err
 		}
 
-		newFromBalance := fromWallet.Balance - amount
+		newFromBalance = fromWallet.Balance - amount
 		err = s.repo.SetNewBalance(tx, fromAddress, newFromBalance)
 		if err != nil {
 			return err
@@ -57,8 +59,8 @@ func (s *WalletTransferService) Transfer(fromAddress string, toAddress string, a
 	})
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return newFromBalance, nil
 }

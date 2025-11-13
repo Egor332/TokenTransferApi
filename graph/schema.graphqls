@@ -1,0 +1,7 @@
+schema {
+  mutation: Mutation
+}
+
+type Mutation {
+  transfer(from_address: String!, to_address: String!, amount: Int!): Int!
+}
