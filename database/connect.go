@@ -13,10 +13,8 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file. Please ensure it exists in the project root: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: .env file not found, reading from environment")
 	}
 
 	const Timezone = "UTC"
@@ -32,7 +30,7 @@ func Connect() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
 	DB = db
