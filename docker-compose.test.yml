@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: builder
+    
+    command: ["go", "test", "-v", "./..."]
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      - ./test/TestDatabaseInit.sql:/app/test/TestDatabaseInit.sql

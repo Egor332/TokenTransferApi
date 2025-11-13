@@ -13,10 +13,8 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatalf("Error loading .env file. Please ensure it exists in the project root: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: .env file not found, reading from environment")
 	}
 
 	const Timezone = "UTC"
