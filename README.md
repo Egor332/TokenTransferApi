@@ -85,4 +85,10 @@ mutation TransferTest {
   )
 }
 ```
+# Tests
+You can run test from separete docker compose file. To succesfully run tests .env file is required (you can use the same .env as for application). To run tests run in your terminal:
+```sh
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+```
+Test results would be printed in your terminal.
 
