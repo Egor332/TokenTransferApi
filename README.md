@@ -15,11 +15,11 @@ The transfer mutation takes the sender's address, the receiver's address, and th
 
 # Setup and Running
 
-1. Prerequisites
+1. **Prerequisites**
 
 You must have Docker and Docker Compose installed to manage the services (Go server and PostgreSQL database).
 
-2. Environment Configuration
+2. **Environment Configuration**
 
 Create a file named .env in the root directory. Use the structure below as a guide:
 
@@ -32,7 +32,7 @@ POSTGRES_DB=my_app_db
 
 **IMPORTANT**: Ensure your actual .env file is completed with the credentials you want to use.
 
-3. Build and Run
+3. **Build and Run**
 
 Execute the following command to build the Go server container and start both the application and the database services:
 ```sh
@@ -85,3 +85,4 @@ mutation TransferTest {
   )
 }
 ```
+
