@@ -18,6 +18,14 @@ func createWallets(t *testing.T, db *gorm.DB, balance1 int64, balance2 int64) (s
 	return w1.WalletAdress, w2.WalletAdress
 }
 
+func createOneWallet(t *testing.T, db *gorm.DB, balance int64, address string) string {
+	w := models.Wallet{WalletAdress: address, Balance: balance}
+
+	require.NoError(t, db.Create(&w).Error)
+
+	return address
+}
+
 func deleteWallets(t *testing.T, db *gorm.DB) {
 	db.Where("1 = 1").Delete(&models.Wallet{})
 }
