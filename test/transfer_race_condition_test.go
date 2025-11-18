@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTransfer_RaceCondition(t *testing.T) {
+func TestTransferRaceCondition(t *testing.T) {
 	database.Connect()
 
 	repo := repository.NewGormWalletRepository()
