@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTransfer_Success(t *testing.T) {
+func TestTransferSuccess(t *testing.T) {
 	database.Connect()
 
 	repo := repository.NewGormWalletRepository()
