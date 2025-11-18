@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Egor332/TokenTransferApi/models"
 	"github.com/Egor332/TokenTransferApi/pkg/common"
 	"github.com/Egor332/TokenTransferApi/repository"
 	"gorm.io/gorm"
@@ -30,17 +31,34 @@ func (s *WalletTransferService) Transfer(fromAddress string, toAddress string, a
 	var newFromBalance int64
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
-		fromWallet, err := s.repo.GetWalletByAddressWithLock(tx, fromAddress)
-		if err != nil {
-			return err
-		}
-		if fromWallet.Balance < amount {
-			return common.ErrInsufficientFunds
+		var fromWallet, toWallet *models.Wallet
+		var err error
+
+		// Deterministic Ordering strategy to escape deadlock
+		if fromAddress < toAddress {
+			fromWallet, err = s.repo.GetWalletByAddressWithLock(tx, fromAddress)
+			if err != nil {
+				return err
+			}
+
+			toWallet, err = s.repo.GetWalletByAddressWithLock(tx, toAddress)
+			if err != nil {
+				return err
+			}
+		} else {
+			toWallet, err = s.repo.GetWalletByAddressWithLock(tx, toAddress)
+			if err != nil {
+				return err
+			}
+
+			fromWallet, err = s.repo.GetWalletByAddressWithLock(tx, fromAddress)
+			if err != nil {
+				return err
+			}
 		}
 
-		toWallet, err := s.repo.GetWalletByAddressWithLock(tx, toAddress)
-		if err != nil {
-			return err
+		if fromWallet.Balance < amount {
+			return common.ErrInsufficientFunds
 		}
 
 		newFromBalance = fromWallet.Balance - amount

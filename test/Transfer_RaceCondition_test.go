@@ -69,6 +69,7 @@ func TestTransfer_RaceCondition(t *testing.T) {
 
 	updatedSubject, err := repo.GetWalletByAddress(database.DB, subject)
 	require.NoError(t, err)
+	deleteWallets(t, database.DB)
 
 	finalBalance := updatedSubject.Balance
 
